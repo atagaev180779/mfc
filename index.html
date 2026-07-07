@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Дашборд размещения МФЦ Ростовской области</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
+    <script src="./data/mfc_data.js"></script>
+    <script src="./data/comparison_data.js"></script>
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">Ростовская область · Яндекс.Карты + официальный реестр</p>
+          <h1>Аналитический инструмент схем размещения МФЦ</h1>
+          <p class="hero__lead">
+            Дашборд показывает не просто карту офисов, а сравнительную схему: где сеть МФЦ
+            сопоставима с повседневными сервисами, а где заметно реже и требует отдельного
+            управленческого разбора.
+          </p>
+        </div>
+        <div class="hero__meta">
+          <div class="meta-card">
+            <span class="meta-card__label">Источник</span>
+            <strong id="source-title">МФЦ Ростовской области</strong>
+            <a id="source-link" href="https://mfc61.ru/coordinates" target="_blank" rel="noreferrer">
+              открыть официальный реестр
+            </a>
+          </div>
+          <div class="meta-card">
+            <span class="meta-card__label">Управленческий вопрос</span>
+            <strong>Где схема МФЦ слабее рыночных и сервисных сетей?</strong>
+            <span>Именно это сравнение дашборд делает основной управленческой историей.</span>
+          </div>
+          <div class="meta-card">
+            <span class="meta-card__label">Эталон для сравнения</span>
+            <strong>ПВЗ · почта · банки · аптеки</strong>
+            <span>слои можно догружать CSV-файлом и использовать как ориентир массовой доступности</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="management-frame">
+        <article class="frame-card">
+          <span class="frame-card__label">1. Что здесь измеряется</span>
+          <strong>МФЦ сравниваются с плотностью других офлайн-сетей по муниципалитетам</strong>
+          <p>
+            Если повседневных сервисных точек заметно больше, значит жителю проще дойти до
+            альтернативной сети, чем до МФЦ.
+          </p>
+        </article>
+        <article class="frame-card">
+          <span class="frame-card__label">2. Как читать карту</span>
+          <strong>Слой “районный разрыв” показывает, где эталонный контур плотнее сети МФЦ</strong>
+          <p>
+            Чем выше значение разрыва, тем вероятнее, что территорию стоит рассматривать для
+            усиления офисной модели, ТОСП или мобильного формата.
+          </p>
+        </article>
+        <article class="frame-card">
+          <span class="frame-card__label">3. Для чего это руководителю</span>
+          <strong>Быстро выделить территории для перепроверки схемы размещения</strong>
+          <p>
+            Ниже дашборд автоматически показывает зоны внимания, муниципалитеты с лучшим балансом
+            и сводную таблицу для обсуждения на совещании.
+          </p>
+        </article>
+      </section>
+
+      <section class="dashboard">
+        <aside class="sidebar">
+          <div class="panel">
+            <h2>Фильтры</h2>
+            <label class="field">
+              <span>Поиск по названию или адресу</span>
+              <input id="search-input" type="search" placeholder="Например, Ростов-на-Дону или Соколова" />
+            </label>
+
+            <label class="field">
+              <span>Район / городской округ</span>
+              <select id="district-select">
+                <option value="all">Все территории</option>
+              </select>
+            </label>
+
+            <div class="field">
+              <span>Тип офисов</span>
+              <label class="checkline">
+                <input id="type-office" type="checkbox" checked />
+                <span>Обычные офисы и ТОСП</span>
+              </label>
+              <label class="checkline">
+                <input id="type-business" type="checkbox" checked />
+                <span>МФЦ для бизнеса</span>
+              </label>
+            </div>
+
+            <button id="reset-filters" class="ghost-btn" type="button">Сбросить фильтры</button>
+          </div>
+
+          <div class="panel stats-panel">
+            <h2>Текущий охват</h2>
+            <div class="stats-grid">
+              <article class="stat-card">
+                <span>Точек на карте</span>
+                <strong id="stat-visible">0</strong>
+              </article>
+              <article class="stat-card">
+                <span>Районов в выборке</span>
+                <strong id="stat-districts">0</strong>
+              </article>
+              <article class="stat-card">
+                <span>МФЦ для бизнеса</span>
+                <strong id="stat-business">0</strong>
+              </article>
+            </div>
+          </div>
+
+          <div class="panel ranking-panel">
+            <div class="panel__header">
+              <h2>Где сеть МФЦ плотнее</h2>
+              <span id="ranking-caption">по текущему выбору МФЦ</span>
+            </div>
+            <div id="district-ranking" class="ranking-list"></div>
+          </div>
+
+          <div class="panel upload-panel">
+            <h2>Слои сравнения</h2>
+            <div id="builtin-layers" class="layer-list"></div>
+            <p class="panel-note">
+              Встроенные слои играют роль эталона шаговой и бытовой доступности. Сюда же можно
+              загрузить `WB`, `Ozon`, `Яндекс Маркет`, магазины, банки, аптеки или почту в CSV.
+            </p>
+            <label class="field">
+              <span>Добавить слой CSV</span>
+              <input id="comparison-upload" type="file" accept=".csv,.json" />
+            </label>
+            <div class="template-box">
+              <span>Ожидаемые поля:</span>
+              <code>name, lat, lon, group, address</code>
+              <a href="./data/comparison_template.csv" download>скачать шаблон</a>
+            </div>
+            <div id="dynamic-layers" class="layer-list"></div>
+          </div>
+        </aside>
+
+        <main class="map-stage">
+          <section class="map-card">
+            <div class="map-card__top">
+              <div>
+                <h2>Карта размещения</h2>
+                <p id="map-caption">
+                  Синие точки — обычные офисы и ТОСП, оранжевые — МФЦ для бизнеса.
+                </p>
+              </div>
+              <div class="legend-wrap">
+                <label class="analytics-toggle">
+                  <input id="gap-overlay-toggle" type="checkbox" checked />
+                  <span>Показывать районный разрыв на карте</span>
+                </label>
+                <div class="legend">
+                  <span><i class="dot dot--blue"></i>МФЦ / ТОСП</span>
+                  <span><i class="dot dot--orange"></i>МФЦ для бизнеса</span>
+                  <span><i class="dot dot--gap"></i>районный разрыв</span>
+                </div>
+              </div>
+            </div>
+            <div id="map" class="map"></div>
+          </section>
+
+          <section class="detail-grid">
+            <article class="detail-card">
+              <div class="detail-card__header">
+                <h2>Карточка точки</h2>
+                <span>кликните по офису на карте</span>
+              </div>
+              <div id="office-detail" class="office-detail empty-state">
+                Выберите точку МФЦ или загруженного слоя, чтобы увидеть адрес, график и контакты.
+              </div>
+            </article>
+
+            <article class="detail-card insight-card">
+              <div class="detail-card__header">
+                <h2>Какие сети полезны как эталон</h2>
+                <span>чтобы оценивать силу схемы размещения МФЦ</span>
+              </div>
+              <ul class="insight-list">
+                <li><strong>ПВЗ WB / Ozon / Яндекс Маркет</strong> — индикатор того, насколько массовый сервис дошёл до жителя.</li>
+                <li><strong>Почта России</strong> — ближайший организационный аналог сервисной сети присутствия.</li>
+                <li><strong>Аптеки</strong> — хороший маркер повседневной доступности в жилой среде.</li>
+                <li><strong>Сетевые продуктовые магазины</strong> — индикатор устойчивого бытового трафика.</li>
+                <li><strong>Банки и банкоматы</strong> — привычная офлайн-инфраструктура услуг и платежей.</li>
+                <li><strong>Населённые пункты без МФЦ</strong> — следующий слой для поиска территорий недопокрытия.</li>
+              </ul>
+            </article>
+          </section>
+
+          <section class="analytics-card">
+            <div class="analytics-card__header">
+              <div>
+                <h2>Районное сравнение схем размещения</h2>
+                <p id="analytics-caption">
+                  Здесь считаем разницу между числом точек МФЦ и выбранным эталонным контуром.
+                  Поиск по названию точки на этот блок не влияет.
+                </p>
+              </div>
+            </div>
+
+            <div class="analytics-summary">
+              <article class="stat-card stat-card--analytics">
+                <span>Муниципалитеты, где эталон плотнее</span>
+                <strong id="analytics-weaker-count">0</strong>
+              </article>
+              <article class="stat-card stat-card--analytics">
+                <span>Самый выраженный разрыв</span>
+                <strong id="analytics-max-gap">—</strong>
+              </article>
+              <article class="stat-card stat-card--analytics">
+                <span>Территории с сопоставимым контуром</span>
+                <strong id="analytics-balanced-count">0</strong>
+              </article>
+            </div>
+
+            <div class="executive-summary">
+              <div class="detail-card executive-panel">
+                <div class="detail-card__header">
+                  <h2>Управленческая интерпретация</h2>
+                  <span>что означает текущий выбор сравнительных слоёв</span>
+                </div>
+                <div id="executive-insights" class="executive-insights"></div>
+              </div>
+            </div>
+
+            <div class="analytics-grid">
+              <article class="detail-card analytics-panel">
+                <div class="detail-card__header">
+                  <h2>Территории для разбора</h2>
+                  <span>где сеть МФЦ заметно реже эталонного контура</span>
+                </div>
+                <div id="analytics-top-list" class="analytics-top-list"></div>
+              </article>
+
+              <article class="detail-card analytics-panel">
+                <div class="detail-card__header">
+                  <h2>Сводка по муниципалитетам</h2>
+                  <span>МФЦ против выбранного сервисного эталона</span>
+                </div>
+                <div class="analytics-table-wrap">
+                  <table class="analytics-table">
+                    <thead>
+                      <tr id="analytics-table-head"></tr>
+                    </thead>
+                    <tbody id="analytics-table-body"></tbody>
+                  </table>
+                </div>
+              </article>
+            </div>
+          </section>
+        </main>
+      </section>
+    </div>
+  </body>
+</html>
