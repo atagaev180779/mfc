@@ -3,21 +3,16 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Дашборд размещения МФЦ Ростовской области</title>
+    <title>Аналитический инструмент схем размещения МФЦ</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/dashboard_embed.css" />
     <script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU"></script>
-    <script src="./data/mfc_data.js"></script>
-    <script src="./data/comparison_data.js"></script>
-    <script defer src="./app.js"></script>
   </head>
   <body>
-    <div class="page-shell">
+<div class="mfc-dashboard-tilda">
+<div class="page-shell">
       <header class="hero">
         <div class="hero__copy">
           <p class="eyebrow">Ростовская область · Яндекс.Карты + официальный реестр</p>
@@ -268,5 +263,7 @@
         </main>
       </section>
     </div>
+</div>
+    <script src="./assets/dashboard_bundle.js"></script>
   </body>
 </html>
