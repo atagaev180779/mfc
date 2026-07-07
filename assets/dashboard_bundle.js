@@ -8328,6 +8328,7 @@ const ui = {
   statVisible: document.getElementById("stat-visible"),
   statDistricts: document.getElementById("stat-districts"),
   statBusiness: document.getElementById("stat-business"),
+  rankingCaption: document.getElementById("ranking-caption"),
   districtRanking: document.getElementById("district-ranking"),
   officeDetail: document.getElementById("office-detail"),
   comparisonUpload: document.getElementById("comparison-upload"),
@@ -8524,6 +8525,12 @@ function updateStats(offices) {
     .filter((office) => office.category === "business")
     .length.toLocaleString("ru-RU");
   renderDistrictRanking(districtStats);
+  if (ui.rankingCaption) {
+    ui.rankingCaption.textContent =
+      state.district === "all"
+        ? "сначала выберите муниципалитет"
+        : `${state.district} · по текущему набору МФЦ`;
+  }
 }
 
 function inferDistrictFromText(text) {
@@ -8710,10 +8717,39 @@ function renderAnalytics() {
   const activeBuiltinLayers = builtinLayers.filter((layer) => state.visibleComparisonLayers.has(layer.id));
   const rows = buildAnalyticsRows();
   const activeLayerNames = activeBuiltinLayers.map((layer) => layer.name);
+  const hasFocusedDistrict = state.district !== "all";
+
+  if (!hasFocusedDistrict) {
+    ui.analyticsCaption.textContent =
+      "Сначала выберите муниципальное образование. После этого можно включать сервисные сети и получать выводы по территории.";
+    ui.analyticsWeakerCount.textContent = "—";
+    ui.analyticsBalancedCount.textContent = "—";
+    ui.analyticsMaxGap.textContent = "—";
+    ui.executiveInsights.innerHTML = `
+      <article class="insight-card-auto">
+        <span>Сначала территория</span>
+        <strong>Выберите муниципальное образование</strong>
+        <p>Этот экран намеренно не показывает итоговые выводы по всей области сразу. Логика дашборда построена от конкретного муниципалитета к сравнению с сервисными сетями и затем к управленческому решению.</p>
+      </article>
+    `;
+    ui.analyticsTopList.innerHTML = `
+      <div class="analytics-top-item">
+        <p class="analytics-top-item__text">После выбора муниципалитета здесь появятся территории, точки и разрыв по выбранному эталону.</p>
+      </div>
+    `;
+    ui.analyticsTableHead.innerHTML = "<th>Следующий шаг</th>";
+    ui.analyticsTableBody.innerHTML = `
+      <tr>
+        <td><strong>Выберите муниципальное образование в левом блоке</strong></td>
+      </tr>
+    `;
+    renderGapOverlay([]);
+    return;
+  }
 
   ui.analyticsCaption.textContent = activeBuiltinLayers.length
-    ? `Эталонный контур сейчас собран из слоёв: ${activeLayerNames.join(", ")}. Разница считается как число точек эталона минус число точек МФЦ в муниципалитете.`
-    : "Включите хотя бы один встроенный сравнительный слой, чтобы получить сравнительную картину по муниципалитетам.";
+    ? `${state.district}: эталонный контур сейчас собран из слоёв ${activeLayerNames.join(", ")}. Разница считается как число точек эталона минус число точек МФЦ в выбранном муниципалитете.`
+    : `${state.district}: включите хотя бы один встроенный сравнительный слой, чтобы получить выводы по территории.`;
 
   const weakerRows = rows.filter((row) => row.gap > 0);
   const balancedRows = rows.filter((row) => row.activeComparisonTotal > 0 && row.gap <= 0);
