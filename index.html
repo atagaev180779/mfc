@@ -46,27 +46,27 @@
 
       <section class="management-frame">
         <article class="frame-card">
-          <span class="frame-card__label">1. Что здесь измеряется</span>
-          <strong>МФЦ сравниваются с плотностью других офлайн-сетей по муниципалитетам</strong>
+          <span class="frame-card__label">Шаг 1</span>
+          <strong>Сначала выберите муниципальное образование</strong>
           <p>
-            Если повседневных сервисных точек заметно больше, значит жителю проще дойти до
-            альтернативной сети, чем до МФЦ.
+            Дашборд должен работать от конкретной территории. Только после выбора муниципалитета
+            выводы становятся управленчески полезными.
           </p>
         </article>
         <article class="frame-card">
-          <span class="frame-card__label">2. Как читать карту</span>
-          <strong>Слой “районный разрыв” показывает, где эталонный контур плотнее сети МФЦ</strong>
+          <span class="frame-card__label">Шаг 2</span>
+          <strong>Затем включите сети для сравнения: МФЦ, почта, ПВЗ, банки, аптеки</strong>
           <p>
-            Чем выше значение разрыва, тем вероятнее, что территорию стоит рассматривать для
-            усиления офисной модели, ТОСП или мобильного формата.
+            Выбранные слои формируют эталонный контур доступности. От него зависит, какие выводы
+            система покажет по территории.
           </p>
         </article>
         <article class="frame-card">
-          <span class="frame-card__label">3. Для чего это руководителю</span>
-          <strong>Быстро выделить территории для перепроверки схемы размещения</strong>
+          <span class="frame-card__label">Шаг 3</span>
+          <strong>После этого смотрите карту, разрыв и приоритетные решения</strong>
           <p>
-            Ниже дашборд автоматически показывает зоны внимания, муниципалитеты с лучшим балансом
-            и сводную таблицу для обсуждения на совещании.
+            Ниже дашборд автоматически покажет, где сеть МФЦ выглядит слабее выбранного эталона и
+            какие решения стоит обсуждать по муниципалитету.
           </p>
         </article>
       </section>
@@ -74,21 +74,31 @@
       <section class="dashboard">
         <aside class="sidebar">
           <div class="panel">
-            <h2>Фильтры</h2>
-            <label class="field">
-              <span>Поиск по названию или адресу</span>
-              <input id="search-input" type="search" placeholder="Например, Ростов-на-Дону или Соколова" />
-            </label>
+            <h2>Управленческий сценарий</h2>
 
             <label class="field">
-              <span>Район / городской округ</span>
+              <span>1. Муниципальное образование</span>
               <select id="district-select">
-                <option value="all">Все территории</option>
+                <option value="all">Сначала выберите муниципалитет</option>
               </select>
             </label>
 
             <div class="field">
-              <span>Тип офисов</span>
+              <span>2. Эталонные сети для сравнения</span>
+              <p class="panel-note">
+                Ниже включайте сервисные сети, с которыми хотите сравнить схему размещения МФЦ в
+                выбранном муниципалитете.
+              </p>
+            </div>
+            <div id="builtin-layers" class="layer-list"></div>
+
+            <label class="field">
+              <span>3. Поиск по названию или адресу</span>
+              <input id="search-input" type="search" placeholder="Например, Ростов-на-Дону или Соколова" />
+            </label>
+
+            <div class="field">
+              <span>4. Какие форматы МФЦ учитывать</span>
               <label class="checkline">
                 <input id="type-office" type="checkbox" checked />
                 <span>Обычные офисы и ТОСП</span>
@@ -122,18 +132,17 @@
 
           <div class="panel ranking-panel">
             <div class="panel__header">
-              <h2>Где сеть МФЦ плотнее</h2>
-              <span id="ranking-caption">по текущему выбору МФЦ</span>
+              <h2>Текущая конфигурация МФЦ</h2>
+              <span id="ranking-caption">сначала выберите муниципалитет</span>
             </div>
             <div id="district-ranking" class="ranking-list"></div>
           </div>
 
           <div class="panel upload-panel">
-            <h2>Слои сравнения</h2>
-            <div id="builtin-layers" class="layer-list"></div>
+            <h2>Дополнительные слои</h2>
             <p class="panel-note">
-              Встроенные слои играют роль эталона шаговой и бытовой доступности. Сюда же можно
-              загрузить `WB`, `Ozon`, `Яндекс Маркет`, магазины, банки, аптеки или почту в CSV.
+              Если встроенных сетей недостаточно, сюда можно загрузить `WB`, `Ozon`, `Яндекс
+              Маркет`, магазины, банки, аптеки или почту в CSV.
             </p>
             <label class="field">
               <span>Добавить слой CSV</span>
@@ -202,10 +211,9 @@
           <section class="analytics-card">
             <div class="analytics-card__header">
               <div>
-                <h2>Районное сравнение схем размещения</h2>
+                <h2>Выводы по выбранному муниципалитету</h2>
                 <p id="analytics-caption">
-                  Здесь считаем разницу между числом точек МФЦ и выбранным эталонным контуром.
-                  Поиск по названию точки на этот блок не влияет.
+                  Сначала выберите муниципальное образование, затем включите сети для сравнения.
                 </p>
               </div>
             </div>
